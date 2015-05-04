@@ -32,9 +32,22 @@ def index():
         message += "\n" + link
 
     if location != "":
+        coordinate = location.replace(";", ",")
+        params = {
+            "center": coordinate,
+            "zoom": 15,
+            "format": "png",
+            "sensor": "false",
+            "size": "640x640",
+            "maptype": "roadmap",
+            "markers": coordinate
+        }
+        message += "\nhttp://maps.googleapis.com/maps/api/staticmap?"
+        message += "&".join([k + "=" + str(v) for k, v in params.items()])
+
         lat, lng = map(float, location.split(";"))
         message += "\nhttps://www.google.co.jp/maps/"
-        message += "@{lat},{lng},{zoom}z".format(lat=lat, lng=lng, zoom=17)
+        message += "@{lat},{lng},{zoom}z".format(lat=lat, lng=lng, zoom=15)
 
     # Slack notification
     payload = {
