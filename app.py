@@ -27,8 +27,14 @@ def index():
 
     # Message generation
     message = "Yo from " + username
+
     if link != "":
         message += "\n" + link
+
+    if location != "":
+        lat, lng = map(float, location.split(";"))
+        message += "\nhttps://www.google.co.jp/maps/"
+        message += "@{lat},{lng},{zoom}z".format(lat=lat, lng=lng, zoom=17)
 
     # Slack notification
     payload = {
