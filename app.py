@@ -26,16 +26,28 @@ def index():
         return abort(400)
 
     # Message generation
-    message = "Yo from " + username
+    message = "Yo{type} from " + username
 
     if link != "":
+        message = message.format(type=" Link")
         message += "\n" + link
-
-    if location != "":
+    elif location != "":
+        message = message.format(type=" Location")
         coordinate = location.replace(";", ",")
+
+        # Reverse geocoding
+        address = reverse_geocoding(coordinate)
+        if address is not None:
+            message += "\n" + address
+
+        # Google Maps Link
+        message += "\nhttps://www.google.co.jp/maps/"
+        message += "@{coordinate},15z".format(coordinate=coordinate)
+
+        # Static map
         params = {
             "center": coordinate,
-            "zoom": 15,
+            "zoom": 16,
             "format": "png",
             "sensor": "false",
             "size": "640x640",
@@ -44,9 +56,9 @@ def index():
         }
         message += "\nhttp://maps.googleapis.com/maps/api/staticmap?"
         message += "&".join([k + "=" + str(v) for k, v in params.items()])
+    else:
+        message = message.format(type="")
 
-        message += "\nhttps://www.google.co.jp/maps/"
-        message += "@{coordinate},15z".format(coordinate=coordinate)
 
     # Slack notification
     payload = {
@@ -62,6 +74,41 @@ def index():
 
     # Dummy response
     return { "result": "ok" }
+
+
+def reverse_geocoding(coordinate):
+    params = {
+        "latlng": coordinate,
+        "language": "ja",
+        "sensor": "false"
+    }
+    url = "http://maps.googleapis.com/maps/api/geocode/json"
+
+    response = requests.get(url, params=params)
+    if response.status_code != 200:
+        return
+
+    json = response.json()
+    if json["status"] != "OK":
+        return
+
+    results = json["results"]
+    if len(results) == 0:
+        return
+
+    components = results[0]["address_components"]
+    required = [
+        "administrative_area_level_1",
+        "locality",
+        "sublocality_level_1"
+    ]
+
+    result = ""
+    for component in reversed(components):
+        if len([c for c in component["types"] if c in required]) > 0:
+            result += component["long_name"]
+
+    return result
 
 
 if __name__ == '__main__':
