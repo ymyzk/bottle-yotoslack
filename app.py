@@ -22,7 +22,7 @@ def index():
     location = request.query.location
 
     # Query validation
-    if user_ip == "" or username == "":
+    if username == "":
         return abort(400)
 
     # Message generation
