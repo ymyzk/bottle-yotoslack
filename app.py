@@ -54,7 +54,7 @@ def index():
             "maptype": "roadmap",
             "markers": coordinate
         }
-        message += "\nhttp://maps.googleapis.com/maps/api/staticmap?"
+        message += "\nhttps://maps.googleapis.com/maps/api/staticmap?"
         message += "&".join([k + "=" + str(v) for k, v in params.items()])
     else:
         message = message.format(type="")
@@ -82,7 +82,7 @@ def reverse_geocoding(coordinate):
         "language": "ja",
         "sensor": "false"
     }
-    url = "http://maps.googleapis.com/maps/api/geocode/json"
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
 
     response = requests.get(url, params=params)
     if response.status_code != 200:
