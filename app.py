@@ -41,21 +41,10 @@ def index():
             message += "\n" + address
 
         # Google Maps Link
-        message += "\nhttps://www.google.co.jp/maps/"
-        message += "@{coordinate},15z".format(coordinate=coordinate)
+        message += "\n" + get_map_link(coordinate)
 
         # Static map
-        params = {
-            "center": coordinate,
-            "zoom": 16,
-            "format": "png",
-            "sensor": "false",
-            "size": "640x640",
-            "maptype": "roadmap",
-            "markers": coordinate
-        }
-        message += "\nhttps://maps.googleapis.com/maps/api/staticmap?"
-        message += "&".join([k + "=" + str(v) for k, v in params.items()])
+        message += "\n" + get_static_map_url(coordinate)
     else:
         message = message.format(type="")
 
@@ -74,6 +63,27 @@ def index():
 
     # Dummy response
     return { "result": "ok" }
+
+
+def get_map_link(coordinate, zoom=15):
+    return "https://www.google.co.jp/maps/@{coordinate},{zoom}z".format(
+        coordinate=coordinate,
+        zoom=zoom)
+
+
+def get_static_map_url(coordinate, zoom=16):
+    params = {
+        "center": coordinate,
+        "zoom": zoom,
+        "format": "png",
+        "sensor": "false",
+        "size": "640x640",
+        "maptype": "roadmap",
+        "markers": coordinate
+    }
+    url = "https://maps.googleapis.com/maps/api/staticmap?"
+    url += "&".join([k + "=" + str(v) for k, v in params.items()])
+    return url
 
 
 def reverse_geocoding(coordinate):
