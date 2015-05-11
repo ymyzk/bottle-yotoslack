@@ -44,7 +44,7 @@ def index():
         message += "\n" + get_map_link(coordinate)
 
         # Static map
-        message += "\n" + get_static_map_url(coordinate)
+        message += "\n" + shorten_url(get_static_map_url(coordinate))
     else:
         message = message.format(type="")
 
@@ -119,6 +119,25 @@ def reverse_geocoding(coordinate):
             result += component["long_name"]
 
     return result
+
+
+def shorten_url(long_url, fail_silently=True):
+    try:
+        params = {
+            "access_token": app.config["bitly.token"],
+            "longUrl": long_url
+        }
+        url = "https://api-ssl.bitly.com/v3/shorten"
+        response = requests.get(url, params=params)
+        assert response.status_code == 200
+        url = response.json()["data"]["url"]
+    except:
+        if fail_silently:
+            url = long_url
+        else:
+            raise
+
+    return url
 
 
 if __name__ == '__main__':
