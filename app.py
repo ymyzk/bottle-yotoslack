@@ -1,22 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import json
-from os import path
+from hashlib import md5
 
 import bottle
 from bottle import abort, request
+from channels.backends.slack import SlackChannel
 import requests
 
 
 app = bottle.default_app()
 app.config.load_config("app.conf")
 
+colors = [
+    "#1ABC9C",
+    "#2ECC71",
+    "#3498DB",
+    "#34495E",
+    "#16A085",
+    "#F1C40F",
+    "#2980B9",
+    "#8E44AD"
+]
 
 @app.route(app.config["yo.callback_url"])
 def index():
     # Parse query
-    user_ip = request.query.user_ip
     username = request.query.username
     link = request.query.link
     location = request.query.location
@@ -26,11 +35,24 @@ def index():
         return abort(400)
 
     # Message generation
+    color = colors[int(md5(username.encode("utf-8")).hexdigest(), 16)
+                   % len(colors)]
+    attachments = [
+        {
+            "color": color,
+            "fields": []
+        }
+    ]
+
     message = "Yo{type} from " + username
 
     if link != "":
         message = message.format(type=" Link")
-        message += "\n" + link
+        attachments[0]["fields"].append({
+            "title": "Link",
+            "value": link,
+            "short": False
+        })
     elif location != "":
         message = message.format(type=" Location")
         coordinate = location.replace(";", ",")
@@ -38,31 +60,41 @@ def index():
         # Reverse geocoding
         address = reverse_geocoding(coordinate)
         if address is not None:
-            message += "\n" + address
+            attachments[0]["fields"].append({
+                "title": "Address",
+                "value": address,
+                "short": True
+            })
 
         # Google Maps Link
-        message += "\n" + get_map_link(coordinate)
+        attachments[0]["fields"].append({
+            "title": "Google Maps",
+            "value": get_map_link(coordinate),
+            "short": True
+        })
 
         # Static map
-        message += "\n" + shorten_url(get_static_map_url(coordinate))
+        attachments[0]["image_url"] = get_static_map_url(coordinate)
     else:
         message = message.format(type="")
 
+    attachments[0]["fallback"] = message
+    attachments[0]["text"] = message
 
     # Slack notification
-    payload = {
-        "channel": app.config["slack.channel"],
-        "text": message
-    }
+    slack = SlackChannel(url=app.config["slack.webhook_url"],
+                         username="Yo",
+                         channel=app.config["slack.channel"])
 
-    data = {
-        "payload": json.dumps(payload)
-    }
-
-    requests.post(app.config["slack.webhook_url"], data=data)
+    slack.send("", options={
+        "slack": {
+            "attachments": attachments,
+            "unfurl_links": True
+        }
+    })
 
     # Dummy response
-    return { "result": "ok" }
+    return {"result": "ok"}
 
 
 def get_map_link(coordinate, zoom=15):
