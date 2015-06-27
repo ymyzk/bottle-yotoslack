@@ -153,25 +153,6 @@ def reverse_geocoding(coordinate):
     return result
 
 
-def shorten_url(long_url, fail_silently=True):
-    try:
-        params = {
-            "access_token": app.config["bitly.token"],
-            "longUrl": long_url
-        }
-        url = "https://api-ssl.bitly.com/v3/shorten"
-        response = requests.get(url, params=params)
-        assert response.status_code == 200
-        url = response.json()["data"]["url"]
-    except:
-        if fail_silently:
-            url = long_url
-        else:
-            raise
-
-    return url
-
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True, reloader=True)
 else:
