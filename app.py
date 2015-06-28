@@ -33,6 +33,11 @@ colors = [
     "#8E44AD"
 ]
 
+photo_content_types = (
+    "image/jpeg",
+    "image/png",
+)
+
 @app.route(config["yo_callback_url"])
 def index():
     # Parse query
@@ -57,12 +62,22 @@ def index():
     message = "Yo{type} from " + username
 
     if link != "":
-        message = message.format(type=" Link")
-        attachments[0]["fields"].append({
-            "title": "Link",
-            "value": link,
-            "short": False
-        })
+        # Check whether link is photo or not
+        if check_yo_photo(link):
+            message = message.format(type=" Photo :camera:")
+            attachments[0]["fields"].append({
+                "title": "Link",
+                "value": link,
+                "short": False
+            })
+            attachments[0]["image_url"] = link
+        else:
+            message = message.format(type=" Link :link:")
+            attachments[0]["fields"].append({
+                "title": "Link",
+                "value": link,
+                "short": False
+            })
     elif location != "":
         message = message.format(type=" Location")
         coordinate = location.replace(";", ",")
@@ -161,6 +176,17 @@ def reverse_geocoding(coordinate):
             result += component["long_name"]
 
     return result
+
+
+def check_yo_photo(link):
+    response = requests.head(link)
+    if response.status_code != 200:
+        return False
+
+    if "content-type" not in response.headers:
+        return False
+
+    return response.headers["content-type"] in photo_content_types
 
 
 if __name__ == '__main__':
