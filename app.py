@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from hashlib import md5
+from os import environ
 
 import bottle
 from bottle import abort, request
@@ -10,7 +11,16 @@ import requests
 
 
 app = bottle.default_app()
+
 app.config.load_config("app.conf")
+config = {
+    "yo_callback_url": app.config.get(
+        "yo.callback_url", environ.get("YOTOSLACK_YO_CALLBACK_URL")),
+    "slack_channel": app.config.get(
+        "slack.channel", environ.get("YOTOSLACK_SLACK_CHANNEL")),
+    "slack_url": app.config.get(
+        "slack.webhook_url", environ.get("YOTOSLACK_SLACK_URL"))
+}
 
 colors = [
     "#1ABC9C",
@@ -23,7 +33,7 @@ colors = [
     "#8E44AD"
 ]
 
-@app.route(app.config["yo.callback_url"])
+@app.route(config["yo_callback_url"])
 def index():
     # Parse query
     username = request.query.username
@@ -82,9 +92,9 @@ def index():
     attachments[0]["text"] = message
 
     # Slack notification
-    slack = SlackChannel(url=app.config["slack.webhook_url"],
+    slack = SlackChannel(url=config["slack_url"],
                          username="Yo",
-                         channel=app.config["slack.channel"])
+                         channel=config["slack_channel"])
 
     slack.send("", options={
         "slack": {
