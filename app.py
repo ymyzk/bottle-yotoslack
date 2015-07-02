@@ -79,7 +79,7 @@ def index():
                 "short": False
             })
     elif location != "":
-        message = message.format(type=" Location")
+        message = message.format(type=" Location :round_pushpin:")
         coordinate = location.replace(";", ",")
 
         # Reverse geocoding
