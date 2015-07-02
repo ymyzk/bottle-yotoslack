@@ -64,7 +64,7 @@ def index():
     if link != "":
         # Check whether link is photo or not
         if check_yo_photo(link):
-            message = message.format(type=" Photo :camera:")
+            message = message.format(type=" Photo:camera:")
             attachments[0]["fields"].append({
                 "title": "Link",
                 "value": link,
@@ -72,14 +72,14 @@ def index():
             })
             attachments[0]["image_url"] = link
         else:
-            message = message.format(type=" Link :link:")
+            message = message.format(type=" Link:link:")
             attachments[0]["fields"].append({
                 "title": "Link",
                 "value": link,
                 "short": False
             })
     elif location != "":
-        message = message.format(type=" Location :round_pushpin:")
+        message = message.format(type=" Location:round_pushpin:")
         coordinate = location.replace(";", ",")
 
         # Reverse geocoding
