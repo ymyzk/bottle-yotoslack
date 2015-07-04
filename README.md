@@ -1,4 +1,5 @@
 # bottle-yotoslack
+Send notifications to Slack when you received Yo!
 
 ## Requirements
 * Python 2.7+ or 3.2+
