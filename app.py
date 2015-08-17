@@ -34,8 +34,9 @@ colors = [
 ]
 
 photo_content_types = (
+    "image/gif",
     "image/jpeg",
-    "image/png",
+    "image/png"
 )
 
 @app.route(config["yo_callback_url"])
