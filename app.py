@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 from hashlib import md5
+import json
 from os import environ
+import sys
 
 import bottle
 from bottle import abort, request
@@ -39,15 +41,28 @@ photo_content_types = (
     "image/png"
 )
 
-@app.route(config["yo_callback_url"])
+@app.route(config["yo_callback_url"], method=("GET", "POST"))
 def index():
     # Parse query
-    username = request.query.username
-    link = request.query.link
-    location = request.query.location
+    query = None
+    if request.method == "GET":
+        query = dict(request.query)
+    else:
+        if request.json is not None:
+            query = request.json
+
+    if query is None:
+        return abort(400)
+
+    # Log
+    print(json.dumps(query), file=sys.stderr)
+
+    username = query.get("username", None)
+    link = query.get("link", None)
+    location = query.get("location", None)
 
     # Query validation
-    if username == "":
+    if username is None or username == "":
         return abort(400)
 
     # Message generation
@@ -62,7 +77,7 @@ def index():
 
     message = "Yo{type} from " + username
 
-    if link != "":
+    if link is not None:
         # Check whether link is photo or not
         if check_yo_photo(link):
             message = message.format(type=" Photo:camera:")
@@ -79,7 +94,7 @@ def index():
                 "value": link,
                 "short": False
             })
-    elif location != "":
+    elif location is not None:
         message = message.format(type=" Location:round_pushpin:")
         coordinate = location.replace(";", ",")
 
