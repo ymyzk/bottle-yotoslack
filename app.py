@@ -60,6 +60,8 @@ def index():
     username = query.get("username", None)
     link = query.get("link", None)
     location = query.get("location", None)
+    reply = query.get("reply", None)
+    text = reply.get("text", None) if reply else None
 
     # Query validation
     if username is None or username == "":
@@ -77,6 +79,12 @@ def index():
 
     message = "Yo{type} from " + username
 
+    if text is not None:
+        attachments[0]["fields"].append({
+            "title": "Text",
+            "value": text,
+            "short": False
+        })
     if link is not None:
         # Check whether link is photo or not
         if check_yo_photo(link):
