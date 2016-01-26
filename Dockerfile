@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:slim
 MAINTAINER Yusuke Miyazaki <miyazaki.dev@gmail.com>
 
 COPY . /app/
