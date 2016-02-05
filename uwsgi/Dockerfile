@@ -7,4 +7,4 @@ RUN apt-get update \
         && rm -rf /var/lib/apt/lists/*
 RUN pip install -r requirements.uwsgi.txt
 
-ENTRYPOINT ["uwsgi", "uwsgi.ini"]
+ENTRYPOINT ["uwsgi", "uwsgi/uwsgi.ini"]
