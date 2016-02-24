@@ -1,4 +1,7 @@
 # bottle-yotoslack
+
+[![Requirements Status](https://requires.io/github/ymyzk/bottle-yotoslack/requirements.svg?branch=master)](https://requires.io/github/ymyzk/bottle-yotoslack/requirements/?branch=master)
+
 Send notifications to Slack when you received Yo!
 
 ## Requirements
