@@ -60,7 +60,7 @@ def index():
     username = query.get("username", None)
     link = query.get("link", None)
     location = query.get("location", None)
-    reply = query.get("reply", None)
+    reply = query.get("reply_to", None)
     text = reply.get("text", None) if reply else None
 
     # Query validation
