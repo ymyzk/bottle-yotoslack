@@ -112,14 +112,14 @@ def index():
             attachments[0]["fields"].append({
                 "title": "Address",
                 "value": address,
-                "short": True
+                "short": False
             })
 
         # Google Maps Link
         attachments[0]["fields"].append({
             "title": "Google Maps",
             "value": get_map_link(coordinate),
-            "short": True
+            "short": False
         })
 
         # Static map
